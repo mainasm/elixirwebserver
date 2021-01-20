@@ -1,55 +1,24 @@
-defmodule Servy.Plugins do
- @doc """
-    logs 404 request
-    """
-    def track(%{status: 404, path: path} = conv) do
-        IO.puts "Warning: #{path} is unavailable"
-        conv
-    end
-
-    def track(conv), do: conv
-
-    def rewrite_path(%{path: "/bank"} = conv) do
-        %{conv | path: "/banks"}
-    end
-    
-    def rewrite_path(conv), do: conv 
-
-    def log(conv), do: IO.inspect conv
-    #split request into multiple lines, and fetch method, path
-end
-
 
 defmodule Servy.Handler do
 
     @moduledoc """
     Handles HTTP requests
     """
-
+    import Servy.Plugins, only: [rewrite_path: 1, log: 1, track: 1]
+    import Servy.Parser, only: [parse: 1]
     @doc """
     Transforms a request into a response
     """
     def handle(request) do
         request 
         |> parse
-        |> Servy.Plugins.rewrite_path 
-        |> Servy.Plugins.log
+        |> rewrite_path 
+        |> log
         |> route
-        |> Servy.Plugins.track 
+        |> track 
         |> format_response
     end
 
-    
-    def parse(request) do
-    #pattern match the method and path using atoms
-    [method, path, _] =
-        request 
-            |> String.split("\n") 
-            |> List.first 
-            |> String.split(" ")
-        
-        %{ method: method, path: path, resp_body: "", status: nil }
-    end
 
     def route(conv) do #takes a conv map already having method and path, from the parse function
         route(conv, conv.method, conv.path) #call a two-arity function, and check for a pattern match
