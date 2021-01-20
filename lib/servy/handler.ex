@@ -1,21 +1,7 @@
-defmodule Servy.Handler do
-
-@moduledoc """
-    handled HTTP request
-"""
-@doc """
-    Tranforms the request into a response
-"""
-    def handle(request) do
-        request 
-        |> parse
-        |> rewrite_path 
-        |> log
-        |> route
-        |> track 
-        |> format_response
-    end
-
+defmodule Servy.Plugins do
+ @doc """
+    logs 404 request
+    """
     def track(%{status: 404, path: path} = conv) do
         IO.puts "Warning: #{path} is unavailable"
         conv
@@ -31,6 +17,28 @@ defmodule Servy.Handler do
 
     def log(conv), do: IO.inspect conv
     #split request into multiple lines, and fetch method, path
+end
+
+
+defmodule Servy.Handler do
+
+    @moduledoc """
+    Handles HTTP requests
+    """
+
+    @doc """
+    Transforms a request into a response
+    """
+    def handle(request) do
+        request 
+        |> parse
+        |> Servy.Plugins.rewrite_path 
+        |> Servy.Plugins.log
+        |> route
+        |> Servy.Plugins.track 
+        |> format_response
+    end
+
     
     def parse(request) do
     #pattern match the method and path using atoms
@@ -50,6 +58,10 @@ defmodule Servy.Handler do
     def route(conv, "GET", "/banks") do #function clause
         %{ conv | status: 200, resp_body: "KCB, Co-op, Equity" }
     end
+
+    #module attributes can also be used as constants
+    #using constants also helps with effecting changes at specific parts of the program
+    #constants should reside at the top of module because their values are set at compile time
 
     def route(conv, "GET", "/about") do 
         case File.read("pages/index.html") do
