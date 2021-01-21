@@ -20,11 +20,11 @@ defmodule Servy.Handler do
     end
 
 
-    def route(conv) do #takes a conv map already having method and path, from the parse function
-        route(conv, conv.method, conv.path) #call a two-arity function, and check for a pattern match
-    end
+    #def route(conv) do #takes a conv map already having method and path, from the parse function
+     #   route(conv, conv.method, conv.path) #call a two-arity function, and check for a pattern match
+    #end
 
-    def route(conv, "GET", "/banks") do #function clause
+    def route(%{method: "GET", path: "/banks"} = conv) do #function clause
         %{ conv | status: 200, resp_body: "KCB, Co-op, Equity" }
     end
 
@@ -32,7 +32,7 @@ defmodule Servy.Handler do
     #using constants also helps with effecting changes at specific parts of the program
     #constants should reside at the top of module because their values are set at compile time
 
-    def route(conv, "GET", "/about") do 
+    def route(%{method: "GET", path: "/about"} = conv) do 
         case File.read("pages/index.html") do
             {:ok, content} -> 
                 %{ conv | status: 200, resp_body: content} 
@@ -41,16 +41,16 @@ defmodule Servy.Handler do
         end
     end
 
-    def route(conv, "GET", "/branches") do #function clause
+    def route(%{method: "GET", path: "/branches"} = conv) do #function clause
         %{ conv | status: 200, resp_body: "Kangemi, Muthurua, CBD" }
     end
 
-    def route(conv, "GET", "/branches/" <> id) do
+    def route(%{method: "GET", path: "/branches/" <> id} = conv) do
         %{conv | status: 200, resp_body: "#{id} Branch" }
     end
 
     
-    def route(conv, _method, path) do #use variables for a catch-all route. The variables are boud to whatever argument
+    def route(%{path: path} = conv) do #use variables for a catch-all route. The variables are boud to whatever argument
         #put catch-all route at the bottom of the clauses
         #defualt function clauses come last
         #group function clauses together    
