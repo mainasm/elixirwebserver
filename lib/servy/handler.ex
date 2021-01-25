@@ -61,7 +61,7 @@ defmodule Servy.Handler do
 
     def format_response(%Conv {} = conv) do
         """
-        HTTP/1.1 #{conv.status} #{status_reason(conv.status)}
+        HTTP/1.1 #{Conv.full_status(conv)}
         Content-Type: text/html
         Content-Length: #{String.length(conv.resp_body)}
 
@@ -69,17 +69,6 @@ defmodule Servy.Handler do
         """
     end
 
-    defp status_reason(code) do #private function
-    #can't be called outside this module 
-        %{
-            200 => "OK", #keys are numbers, not atoms
-            201 => "Created", #match number to code
-            401 => "Unauthorized",
-            403 => "Forbidden",
-            404 => "Not Found",
-            500 => "Internal Server Error"
-        }[code]#access value tied to the number, code
-    end
 end
 
 
