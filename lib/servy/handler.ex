@@ -4,6 +4,8 @@ defmodule Servy.Handler do
     @moduledoc """
     Handles HTTP requests
     """
+    alias Servy.Conv
+
     import Servy.Plugins, only: [rewrite_path: 1, log: 1, track: 1]
     import Servy.Parser, only: [parse: 1]
     @doc """
@@ -24,7 +26,7 @@ defmodule Servy.Handler do
      #   route(conv, conv.method, conv.path) #call a two-arity function, and check for a pattern match
     #end
 
-    def route(%{method: "GET", path: "/banks"} = conv) do #function clause
+    def route(%Conv{method: "GET", path: "/banks"} = conv) do #function clause
         %{ conv | status: 200, resp_body: "KCB, Co-op, Equity" }
     end
 
@@ -32,7 +34,7 @@ defmodule Servy.Handler do
     #using constants also helps with effecting changes at specific parts of the program
     #constants should reside at the top of module because their values are set at compile time
 
-    def route(%{method: "GET", path: "/about"} = conv) do 
+    def route(%Conv{method: "GET", path: "/about"} = conv) do 
         case File.read("pages/index.html") do
             {:ok, content} -> 
                 %{ conv | status: 200, resp_body: content} 
@@ -41,23 +43,23 @@ defmodule Servy.Handler do
         end
     end
 
-    def route(%{method: "GET", path: "/branches"} = conv) do #function clause
+    def route(%Conv{method: "GET", path: "/branches"} = conv) do #function clause
         %{ conv | status: 200, resp_body: "Kangemi, Muthurua, CBD" }
     end
 
-    def route(%{method: "GET", path: "/branches/" <> id} = conv) do
+    def route(%Conv{method: "GET", path: "/branches/" <> id} = conv) do
         %{conv | status: 200, resp_body: "#{id} Branch" }
     end
 
     
-    def route(%{path: path} = conv) do #use variables for a catch-all route. The variables are boud to whatever argument
+    def route(%Conv{path: path} = conv) do #use variables for a catch-all route. The variables are boud to whatever argument
         #put catch-all route at the bottom of the clauses
         #defualt function clauses come last
         #group function clauses together    
     %{ conv | status: 404, resp_body: "No #{path} here" }
     end
 
-    def format_response(conv) do
+    def format_response(%Conv {} = conv) do
         """
         HTTP/1.1 #{conv.status} #{status_reason(conv.status)}
         Content-Type: text/html

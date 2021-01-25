@@ -1,4 +1,7 @@
 defmodule Servy.Parser do 
+
+    alias Servy.Conv
+
     def parse(request) do
     #pattern match the method and path using atoms
     [method, path, _] =
@@ -7,7 +10,7 @@ defmodule Servy.Parser do
             |> List.first 
             |> String.split(" ")
         
-        %{ method: method, path: path, resp_body: "", status: nil }
+        %Conv{ method: method, path: path}
     end
 
 end
